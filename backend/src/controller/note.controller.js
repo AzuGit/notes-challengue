@@ -1,7 +1,6 @@
 import Note from "../model/note.model.js";
 
 // Create a new note
-
 const createNote = async (req, res) => {
   try {
     const { title, content, tags } = req.body;
@@ -68,7 +67,7 @@ const getNotes = async (req, res) => {
 // Update a note by ID
 const updateNote = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { noteId } = req.params;
     const { title, content, tags, archived } = req.body;
     const { userId } = req.user;
 
@@ -86,7 +85,7 @@ const updateNote = async (req, res) => {
     }
 
     // Find the note to update
-    const note = await Note.findOne({ _id: id, userId: userId });
+    const note = await Note.findOne({ _id: noteId, userId: userId });
 
     if (!note) {
       return res
@@ -122,14 +121,15 @@ const updateNote = async (req, res) => {
   }
 };
 
+// Delete a note by ID
 const deleteNote = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { noteId } = req.params;
     const { userId } = req.user;
 
     // Find and delete the note
     const deletedNote = await Note.findOneAndDelete({
-      _id: id,
+      _id: noteId,
       userId: userId,
     });
     if (!deletedNote) {
@@ -151,4 +151,54 @@ const deleteNote = async (req, res) => {
   }
 };
 
-export { createNote, getNotes, updateNote, deleteNote };
+//cgange the archived status of a note by ID
+const archivedNotes = async (req, res) => {
+  try {
+    const { noteId } = req.params;
+    const { archived } = req.body;
+    const { userId } = req.user;
+
+    // Validate required fields
+
+    if (!archived) {
+      return res
+        .status(400)
+        .json({ error: true, message: "Archived status is required" });
+    }
+
+    // Find the note to update
+    const note = await Note.findOne({ _id: noteId, userId: userId });
+
+    if (!note) {
+      return res
+        .status(404)
+        .json({ error: true, message: "Note not found or access denied" });
+    }
+    // Update note field
+
+    note.archived = archived;
+
+    // Save the updated note
+    const updatedNote = await note.save();
+
+    if (!updatedNote) {
+      return res
+        .status(500)
+        .json({ error: true, message: "Failed to update note in database" });
+    }
+
+    // Respond with success
+    res.status(200).json({
+      message: "Note archived successfully",
+      note: updatedNote,
+      error: false,
+    });
+  } catch (error) {
+    console.error("Error updating note:", error);
+    res
+      .status(500)
+      .json({ error: true, message: "Internal server error updating note" });
+  }
+};
+
+export { createNote, getNotes, updateNote, deleteNote, archivedNotes };
