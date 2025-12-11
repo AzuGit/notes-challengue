@@ -160,12 +160,6 @@ const archivedNotes = async (req, res) => {
 
     // Validate required fields
 
-    if (!archived) {
-      return res
-        .status(400)
-        .json({ error: true, message: "Archived status is required" });
-    }
-
     // Find the note to update
     const note = await Note.findOne({ _id: noteId, userId: userId });
 
@@ -174,7 +168,7 @@ const archivedNotes = async (req, res) => {
         .status(404)
         .json({ error: true, message: "Note not found or access denied" });
     }
-    // Update note field
+    // Update note fields
 
     note.archived = archived;
 
@@ -189,7 +183,7 @@ const archivedNotes = async (req, res) => {
 
     // Respond with success
     res.status(200).json({
-      message: "Note archived successfully",
+      message: "Note updated successfully",
       note: updatedNote,
       error: false,
     });
@@ -201,4 +195,49 @@ const archivedNotes = async (req, res) => {
   }
 };
 
-export { createNote, getNotes, updateNote, deleteNote, archivedNotes };
+//search notes
+const searchNotes = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const { query } = req.query;
+
+    // Validate required fields
+
+    if (!query) {
+      return res
+        .status(400)
+        .json({ error: true, message: "Search query is required" });
+    }
+
+    // Find the note to update
+    const notes = await Note.findOne({
+      userId: userId,
+      $or: [
+        { title: { $regex: new RegExp(query, "i") } },
+        { content: { $regex: new RegExp(query, "i") } },
+        { tags: { $regex: new RegExp(query, "i") } },
+      ],
+    });
+
+    // Respond with success
+    res.status(200).json({
+      message: "Notes matching successfully",
+      notes: [notes],
+      error: false,
+    });
+  } catch (error) {
+    console.error("Error searching notes:", error);
+    res
+      .status(500)
+      .json({ error: true, message: "Internal server error on search" });
+  }
+};
+
+export {
+  createNote,
+  getNotes,
+  updateNote,
+  deleteNote,
+  archivedNotes,
+  searchNotes,
+};

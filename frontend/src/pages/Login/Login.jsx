@@ -1,27 +1,54 @@
-import { Form, Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import NavBar from "../../components/Navbar/NavBar";
 import PasswordInput from "../../components/Input/PasswordInput";
 import { useState } from "react";
 import { validateEmail, validatePassword } from "../../utils/helper";
+import axiosInstance from "../../utils/axiosInstance";
 
 function Login() {
-  const [email, setemail] = useState("");
-  const [password, setpassword] = useState("");
-  const [error, seterror] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!validateEmail(email)) {
-      seterror("Invalid email format.");
+      setError("Invalid email format.");
       return;
     }
     if (!validatePassword(password)) {
-      seterror("Password must be at least 6 characters long.");
+      setError("Password must be at least 6 characters long.");
       return;
     }
-    seterror("");
+    setError("");
 
     // Proceed with login logic (API call)
+
+    try {
+      const response = await axiosInstance.post("/api/v1/users/login", {
+        email: email,
+        password: password,
+      });
+
+      console.log(response);
+
+      if (response.data && response.data.token) {
+        localStorage.setItem("token", response.data.token);
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        setError(error.response.data.message);
+      } else {
+        setError("An unexpected error occurred. Please try again later");
+      }
+    }
   };
 
   return (
@@ -42,13 +69,13 @@ function Login() {
                 name="email"
                 required
                 value={email}
-                onChange={(e) => setemail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div>
               <PasswordInput
                 value={password}
-                onChange={(e) => setpassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
 

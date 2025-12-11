@@ -3,12 +3,16 @@ import PasswordInput from "../../components/Input/PasswordInput";
 import { useState } from "react";
 import { validateEmail, validatePassword } from "../../utils/helper";
 import { Link } from "react-router-dom";
+import axiosInstance from "../../utils/axiosInstance";
+import { useNavigate } from "react-router-dom";
 
 function SignUp() {
   const [name, setname] = useState("");
   const [email, setemail] = useState("");
   const [password, setpassword] = useState("");
   const [error, seterror] = useState("");
+
+  const navigate = useNavigate();
 
   const handleSingUp = async (e) => {
     e.preventDefault();
@@ -28,6 +32,34 @@ function SignUp() {
     seterror("");
 
     // Proceed with signup logic (API call)
+    try {
+      const response = await axiosInstance.post("/api/v1/users/register", {
+        name: name,
+        email: email,
+        password: password,
+      });
+
+      console.log(response);
+
+      if (response.data && response.data.error) {
+        seterror(response.data.message);
+      }
+
+      if (response.data && response.data.token) {
+        localStorage.setItem("token", response.data.token);
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        seterror(error.response.data.message);
+      } else {
+        seterror("An unexpected error occurred. Please try again later");
+      }
+    }
   };
 
   return (
@@ -38,7 +70,7 @@ function SignUp() {
           <form onSubmit={handleSingUp} method="post">
             <h4 className="text-2xl mb-7">SignUp</h4>
             <div>
-              <label htmlFor="email">Email:</label>
+              <label htmlFor="email">Name:</label>
               <input
                 className="input-box"
                 type="text"

@@ -2,6 +2,7 @@ import User from "../model/user.model.js";
 import bcrypt from "bcrypt";
 import generateToken from "../utils/generateToken.js";
 
+//create user
 const createUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -73,6 +74,7 @@ const createUser = async (req, res) => {
   }
 };
 
+//login user
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -120,6 +122,7 @@ const loginUser = async (req, res) => {
   }
 };
 
+// logout user
 const logoutUser = async (req, res) => {
   try {
     const { email } = req.body;
@@ -139,4 +142,31 @@ const logoutUser = async (req, res) => {
   }
 };
 
-export { createUser, loginUser, logoutUser };
+// get user from token auth
+const getUser = async (req, res) => {
+  try {
+    const { email } = req.user;
+
+    const isUser = await User.findOne({ email });
+
+    if (!isUser) {
+      return res.status(404).json({ error: true, message: "User not found" });
+    }
+
+    res.status(200).json({
+      message: "User found",
+      user: {
+        ID: isUser._id,
+        fullName: isUser.name,
+        email: isUser.email,
+        createAt: isUser.createdAt,
+      },
+      error: false,
+    });
+  } catch (error) {
+    console.error("Error looking in user:", error);
+    res.status(500).json({ error: true, message: "Internal server error" });
+  }
+};
+
+export { createUser, loginUser, logoutUser, getUser };

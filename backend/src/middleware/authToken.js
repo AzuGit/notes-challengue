@@ -18,7 +18,6 @@ const authToken = async (req, res, next) => {
     }
 
     const user = { userId: decoded.id, email: decoded.email }; // Mock user retrieval
-
     // Attach user to request object
 
     req.user = user;

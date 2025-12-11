@@ -7,7 +7,7 @@ function NoteCard({
   date,
   content,
   tags,
-  archive,
+  archived,
   onEdit,
   onDelete,
   onArchive,
@@ -20,7 +20,9 @@ function NoteCard({
           <span className="text-xs text-slate-500">{date}</span>
         </div>
         <FaSave
-          className={`icon-btn ${archive ? "text-blue-500" : "text-slate-300"}`}
+          className={`icon-btn ${
+            archived ? "text-blue-500" : "text-orange-300"
+          }`}
           onClick={onArchive}
         />
       </div>
@@ -28,7 +30,9 @@ function NoteCard({
       <p className="text-xs text-slate-600 mt-2">{content?.slice(0, 60)}</p>
 
       <div className="flex items-center justify-between mt-2">
-        <div className="text-xs text-slate-500">{tags}</div>
+        <div className="text-xs text-slate-500">
+          {tags.map((item) => `#${item}`)}
+        </div>
 
         <div className="flex items-center gap-2">
           <IoMdCreate
