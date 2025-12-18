@@ -1,4 +1,4 @@
-# Azuaje-86875f — Notes App
+# — Notes App -
 
 Brief
 
@@ -97,5 +97,5 @@ Notes
 - If you need the repository README expanded (examples, deployment, default user/password), I can add it.
 
 ```// filepath: c:\Users\Usuario\Desktop\ensolver-test\Azuaje-86875f\README.md
-# Azuaje-86875f — Notes App
+# — Notes App
 ```
