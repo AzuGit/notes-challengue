@@ -29,7 +29,6 @@ function Home() {
 
   // set notes and user info
   useEffect(() => {
-    // Bandera para saber si el componente está montado
     let isMounted = true;
 
     const loadData = async () => {
@@ -61,7 +60,7 @@ function Home() {
 
     loadData();
 
-    // Cleanup: se ejecuta cuando el componente se desmonta
+    // Cleanup
     return () => {
       isMounted = false;
     };
